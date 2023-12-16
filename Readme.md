@@ -58,6 +58,11 @@ The app defines following CRUD APIs.
     
     DELETE /api/notes/{noteId}
 
+Work in progress 
+
+    Text search in notes
+    GET /api/notes?q=operating%20system 
+
 You can test them using postman or any other rest client.
 
 ## Learn more
