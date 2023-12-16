@@ -39,7 +39,9 @@ java -jar target/easy-notes-1.0.0.jar
 Alternatively, you can run the app without packaging it using -
 
 ```bash
-mvn spring-boot:run
+mvn spring-boot:run 
+or 
+./mvnw spring-boot:run
 ```
 
 The app will start running at <http://localhost:8080>.
