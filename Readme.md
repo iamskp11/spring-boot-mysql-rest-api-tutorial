@@ -63,7 +63,7 @@ The app defines following CRUD APIs.
 Work in progress 
 
     Text search in notes
-    GET /api/notes
+    GET /api/notes/search
     {
         "text" : "Operating System",
         "limit" : 10
