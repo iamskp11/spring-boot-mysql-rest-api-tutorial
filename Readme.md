@@ -63,7 +63,11 @@ The app defines following CRUD APIs.
 Work in progress 
 
     Text search in notes
-    GET /api/notes?q=operating%20system 
+    GET /api/notes
+    {
+        "text" : "Operating System",
+        "limit" : 10
+    }
 
 You can test them using postman or any other rest client.
 
