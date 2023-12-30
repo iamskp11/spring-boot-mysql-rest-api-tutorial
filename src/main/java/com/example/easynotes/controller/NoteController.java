@@ -1,9 +1,11 @@
 package com.example.easynotes.controller;
 
 import com.example.easynotes.exception.ResourceNotFoundException;
+import com.example.easynotes.model.ESNote;
 import com.example.easynotes.model.Note;
 import com.example.easynotes.model.SearchNote;
 import com.example.easynotes.repository.NoteRepository;
+import com.example.easynotes.utils.esInterface;
 import com.example.easynotes.utils.textUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +20,15 @@ import java.util.List;
 import java.util.Set;
 
 
-
-
 @RestController
 @RequestMapping("/api")
 public class NoteController {
 
     @Autowired
     NoteRepository noteRepository;
+
+    @Autowired
+    esInterface es;
 
     @GetMapping("/notes")
     public List<Note> getAllNotes() {
@@ -34,6 +37,8 @@ public class NoteController {
 
     @PostMapping("/notes")
     public Note createNote(@Valid @RequestBody Note note) {
+        // elasticSearch es = new elasticSearch();
+        es.addToES(note);
         return noteRepository.save(note);
     }
 
@@ -56,6 +61,21 @@ public class NoteController {
         List<Note> finalNotesWithLimit = new ArrayList<Note> ();
         for(int i=0;i<Integer.min(limit, resultantListNotes.size()) ;i++) finalNotesWithLimit.add(resultantListNotes.get(i));
         return finalNotesWithLimit;
+    }
+
+    @GetMapping("/notes/search2")
+    public List<Note> searchNoteES(@Valid @RequestBody SearchNote searchNote) {
+        String text = searchNote.getText();
+        List<ESNote> res =  es.getFromES(text);
+        List<Note> ans = new ArrayList<Note>();
+        for(int i=0;i<res.size();i++){
+            Note temp = new Note();
+            // temp.setId(res.get(i).getId());
+            temp.setTitle(res.get(i).getTitle());
+            temp.setContent(res.get(i).getContent());
+            ans.add(temp);
+        }
+        return ans;
     }
 
     @GetMapping("/notes/{id}")
