@@ -11,6 +11,7 @@ import java.util.List;
 public interface NoteESRepository extends ElasticsearchRepository<ESNote, Long> {
 
 	List<ESNote> findByTitleContainingOrContentContaining(String title, String content);
+	void deleteByNoteId(Long noteId);
 }
 
 

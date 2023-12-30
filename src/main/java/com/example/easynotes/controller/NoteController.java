@@ -96,8 +96,13 @@ public class NoteController {
 
         note.setTitle(noteDetails.getTitle());
         note.setContent(noteDetails.getContent());
-
+        try{
+            es.deleteDocFromES(note.getId());
+        } catch (Exception e) {
+            System.out.println("Some error, probably Document missing");
+        }
         Note updatedNote = noteRepository.save(note);
+        es.addToES(updatedNote);
         return updatedNote;
     }
 
@@ -107,6 +112,11 @@ public class NoteController {
                 .orElseThrow(() -> new ResourceNotFoundException("Note", "id", noteId));
 
         noteRepository.delete(note);
+        try{
+            es.deleteDocFromES(note.getId());
+        } catch (Exception e ) {
+            System.out.println("Some error, probably Document missing");
+        }
 
         return ResponseEntity.ok().build();
     }

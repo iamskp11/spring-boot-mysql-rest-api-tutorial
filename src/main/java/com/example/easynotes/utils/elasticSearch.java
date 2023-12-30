@@ -25,4 +25,8 @@ public class elasticSearch implements esInterface {
 		List<ESNote> res = noteESRepository.findByTitleContainingOrContentContaining(text, text);
 		return res;
 	}
+
+	public void deleteDocFromES(Long noteId) {
+		noteESRepository.deleteByNoteId(noteId);
+	}
 }

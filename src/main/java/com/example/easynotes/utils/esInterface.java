@@ -11,4 +11,5 @@ public interface esInterface {
 
 	void addToES(Note note);
 	List<ESNote> getFromES(String text);
+	void deleteDocFromES(Long noteId);
 } 
