@@ -38,8 +38,9 @@ public class NoteController {
     @PostMapping("/notes")
     public Note createNote(@Valid @RequestBody Note note) {
         // elasticSearch es = new elasticSearch();
-        es.addToES(note);
-        return noteRepository.save(note);
+        Note res = noteRepository.save(note);
+        es.addToES(res);
+        return res;
     }
 
     @GetMapping("/notes/search")
@@ -70,9 +71,11 @@ public class NoteController {
         List<Note> ans = new ArrayList<Note>();
         for(int i=0;i<res.size();i++){
             Note temp = new Note();
-            // temp.setId(res.get(i).getId());
+            temp.setId(res.get(i).getNoteId());
             temp.setTitle(res.get(i).getTitle());
             temp.setContent(res.get(i).getContent());
+            temp.setCreatedAt(res.get(i).getCreatedAt());
+            temp.setUpdatedAt(res.get(i).getUpdatedAt());
             ans.add(temp);
         }
         return ans;

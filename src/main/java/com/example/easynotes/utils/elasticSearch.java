@@ -14,9 +14,11 @@ public class elasticSearch implements esInterface {
 
 	public void addToES(Note note) {
 		ESNote esnote = new ESNote();
-		// esnote.setId(note.getId());
+		esnote.setNoteId(note.getId());
 		esnote.setTitle(note.getTitle());
 		esnote.setContent(note.getContent());
+		esnote.setCreatedAt();
+		esnote.setUpdatedAt();
 		noteESRepository.save(esnote);
 	}
 	public List<ESNote> getFromES(String text) {
