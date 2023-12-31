@@ -1,7 +1,6 @@
 package com.example.easynotes.controller;
 
 import com.example.easynotes.exception.ResourceNotFoundException;
-import com.example.easynotes.model.ESNote;
 import com.example.easynotes.model.Note;
 import com.example.easynotes.model.SearchNote;
 import com.example.easynotes.repository.NoteRepository;
@@ -64,19 +63,23 @@ public class NoteController {
         return finalNotesWithLimit;
     }
 
-    @GetMapping("/notes/search2")
+    @GetMapping("/notes/searches")
     public List<Note> searchNoteES(@Valid @RequestBody SearchNote searchNote) {
         String text = searchNote.getText();
-        List<ESNote> res =  es.getFromES(text);
+        List<String> splitTexts = textUtils.splitString(text);
+        Integer limit = searchNote.getLimit();
+        List<Long> finalNoteIds =  es.getAllUniqueDocNoteIds(splitTexts);
         List<Note> ans = new ArrayList<Note>();
-        for(int i=0;i<res.size();i++){
-            Note temp = new Note();
-            temp.setId(res.get(i).getNoteId());
-            temp.setTitle(res.get(i).getTitle());
-            temp.setContent(res.get(i).getContent());
-            temp.setCreatedAt(res.get(i).getCreatedAt());
-            temp.setUpdatedAt(res.get(i).getUpdatedAt());
-            ans.add(temp);
+        for(int i=0;i<finalNoteIds.size();i++){
+            if(ans.size() == limit) break;
+            Long noteId = finalNoteIds.get(i);
+            try{
+                Note curr = noteRepository.findById(noteId).orElseThrow(() -> new ResourceNotFoundException("Note", "id", noteId));
+                ans.add(curr);
+            }
+            catch (Exception e) {
+                continue;
+            }
         }
         return ans;
     }

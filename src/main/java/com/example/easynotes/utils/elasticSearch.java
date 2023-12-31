@@ -2,7 +2,12 @@ package com.example.easynotes.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import com.example.easynotes.model.ESNote;
 import com.example.easynotes.model.Note;
 import com.example.easynotes.repository.NoteESRepository;
@@ -28,5 +33,20 @@ public class elasticSearch implements esInterface {
 
 	public void deleteDocFromES(Long noteId) {
 		noteESRepository.deleteByNoteId(noteId);
+	}
+	private List<ESNote> getDocNotes(String text){
+		List<ESNote> esNoteDocs = noteESRepository.findByTitleContainingOrContentContaining(text, text);
+		return esNoteDocs;
+	}
+	public List<Long> getAllUniqueDocNoteIds(List<String> splitTexts) {
+		Set<Long> uniqueNoteIds = new HashSet<Long>();
+		for(int i=0;i<splitTexts.size(); i++) {
+			List<ESNote> esNoteDocs = getDocNotes(splitTexts.get(i));
+			for(ESNote esnote: esNoteDocs) {
+				if(esnote.getNoteId() != null) uniqueNoteIds.add(esnote.getNoteId());
+			}
+		}
+		List<Long> uniqueNotesIdsList = new ArrayList<Long> (uniqueNoteIds);
+		return uniqueNotesIdsList;
 	}
 }

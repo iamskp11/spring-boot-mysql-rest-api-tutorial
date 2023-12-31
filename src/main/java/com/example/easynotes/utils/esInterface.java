@@ -12,4 +12,5 @@ public interface esInterface {
 	void addToES(Note note);
 	List<ESNote> getFromES(String text);
 	void deleteDocFromES(Long noteId);
+	List<Long> getAllUniqueDocNoteIds(List<String> splitTexts);
 } 

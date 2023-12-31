@@ -12,6 +12,7 @@ public interface NoteESRepository extends ElasticsearchRepository<ESNote, Long> 
 
 	List<ESNote> findByTitleContainingOrContentContaining(String title, String content);
 	void deleteByNoteId(Long noteId);
+	List<ESNote> findByTitleContainingOrContentContainingAndNoteIdIsNotNull(String title, String content);
 }
 
 
