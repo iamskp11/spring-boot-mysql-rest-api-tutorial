@@ -18,6 +18,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @RestController
 @RequestMapping("/api")
@@ -29,6 +32,8 @@ public class NoteController {
     @Autowired
     esInterface es;
 
+    private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
+
     @GetMapping("/notes")
     public List<Note> getAllNotes() {
         return noteRepository.findAll();
@@ -36,7 +41,6 @@ public class NoteController {
 
     @PostMapping("/notes")
     public Note createNote(@Valid @RequestBody Note note) {
-        // elasticSearch es = new elasticSearch();
         Note res = noteRepository.save(note);
         es.addToES(res);
         return res;
@@ -48,8 +52,6 @@ public class NoteController {
         List<String> splitTexts = textUtils.splitString(text);
 
         Integer limit = searchNote.getLimit();
-        // System.out.println(splitTexts);
-        // System.out.println(splitTexts.get(0));
         Set<Note> resultantNotes = new HashSet<Note>();
         for(int i=0; i<splitTexts.size(); i++) {
             List<Note> currentNotes = noteRepository.getNoteBySearchString(splitTexts.get(i));
@@ -78,6 +80,7 @@ public class NoteController {
                 ans.add(curr);
             }
             catch (Exception e) {
+                logger.error("Exception occured while finding Note by id" + e.getMessage());
                 continue;
             }
         }
@@ -102,7 +105,7 @@ public class NoteController {
         try{
             es.deleteDocFromES(note.getId());
         } catch (Exception e) {
-            System.out.println("Some error, probably Document missing");
+            logger.error("Exception occured while finding Note by id" + e.getMessage());
         }
         Note updatedNote = noteRepository.save(note);
         es.addToES(updatedNote);
@@ -118,7 +121,7 @@ public class NoteController {
         try{
             es.deleteDocFromES(note.getId());
         } catch (Exception e ) {
-            System.out.println("Some error, probably Document missing");
+            logger.error("Some error, probably Document missing" + e.getMessage());
         }
 
         return ResponseEntity.ok().build();
