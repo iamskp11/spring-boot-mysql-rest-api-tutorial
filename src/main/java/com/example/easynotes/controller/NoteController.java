@@ -4,6 +4,7 @@ import com.example.easynotes.exception.ResourceNotFoundException;
 import com.example.easynotes.model.Note;
 import com.example.easynotes.model.SearchNote;
 import com.example.easynotes.repository.NoteRepository;
+import com.example.easynotes.utils.esInterface;
 import com.example.easynotes.utils.textUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,15 @@ import java.util.List;
 import java.util.Set;
 
 
-
-
 @RestController
 @RequestMapping("/api")
 public class NoteController {
 
     @Autowired
     NoteRepository noteRepository;
+
+    @Autowired
+    esInterface es;
 
     @GetMapping("/notes")
     public List<Note> getAllNotes() {
@@ -34,7 +36,10 @@ public class NoteController {
 
     @PostMapping("/notes")
     public Note createNote(@Valid @RequestBody Note note) {
-        return noteRepository.save(note);
+        // elasticSearch es = new elasticSearch();
+        Note res = noteRepository.save(note);
+        es.addToES(res);
+        return res;
     }
 
     @GetMapping("/notes/search")
@@ -58,6 +63,27 @@ public class NoteController {
         return finalNotesWithLimit;
     }
 
+    @GetMapping("/notes/searches")
+    public List<Note> searchNoteES(@Valid @RequestBody SearchNote searchNote) {
+        String text = searchNote.getText();
+        List<String> splitTexts = textUtils.splitString(text);
+        Integer limit = searchNote.getLimit();
+        List<Long> finalNoteIds =  es.getAllUniqueDocNoteIds(splitTexts);
+        List<Note> ans = new ArrayList<Note>();
+        for(int i=0;i<finalNoteIds.size();i++){
+            if(ans.size() == limit) break;
+            Long noteId = finalNoteIds.get(i);
+            try{
+                Note curr = noteRepository.findById(noteId).orElseThrow(() -> new ResourceNotFoundException("Note", "id", noteId));
+                ans.add(curr);
+            }
+            catch (Exception e) {
+                continue;
+            }
+        }
+        return ans;
+    }
+
     @GetMapping("/notes/{id}")
     public Note getNoteById(@PathVariable(value = "id") Long noteId) {
         return noteRepository.findById(noteId)
@@ -73,8 +99,13 @@ public class NoteController {
 
         note.setTitle(noteDetails.getTitle());
         note.setContent(noteDetails.getContent());
-
+        try{
+            es.deleteDocFromES(note.getId());
+        } catch (Exception e) {
+            System.out.println("Some error, probably Document missing");
+        }
         Note updatedNote = noteRepository.save(note);
+        es.addToES(updatedNote);
         return updatedNote;
     }
 
@@ -84,6 +115,11 @@ public class NoteController {
                 .orElseThrow(() -> new ResourceNotFoundException("Note", "id", noteId));
 
         noteRepository.delete(note);
+        try{
+            es.deleteDocFromES(note.getId());
+        } catch (Exception e ) {
+            System.out.println("Some error, probably Document missing");
+        }
 
         return ResponseEntity.ok().build();
     }
