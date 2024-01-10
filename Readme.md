@@ -60,10 +60,18 @@ The app defines following CRUD APIs.
     
     DELETE /api/notes/{noteId}
 
-Work in progress 
+    GET /api/notes/search
+    {
+        "text" : "Operating System",
+        "limit" : 10
+    }
 
-    Text search in notes
-    GET /api/notes?q=operating%20system 
+    GET /api/notes/searches
+    {
+        "text" : "Operating System fear falling doubts",
+        "limit" : 10
+    }
+
 
 You can test them using postman or any other rest client.
 
