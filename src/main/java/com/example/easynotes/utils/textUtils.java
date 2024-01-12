@@ -6,32 +6,23 @@ public class textUtils {
 	private textUtils() {
 
 	}
-	private static boolean isStringEmpty(String text) {
-		return text.length() == 0;
-	}
-
-	private static boolean isStringWhiteSpace(String text) {
-		return Character.isWhitespace(text.charAt(0));
-	}
 
 	public static List<String> splitString(String text) {
 		List<String> splitStrings = new ArrayList<>();
-		String str="";
 
-		for(int i=0;i<=text.length();i++) {
-			if(i==text.length()) {
-				if(!isStringEmpty(str)) {
-					splitStrings.add(str);
-					break;
-				}
+		int start_ptr = 0;
+		while(start_ptr < text.length()) {
+			while(start_ptr < text.length() && Character.isWhitespace(text.charAt(start_ptr))) {
+				start_ptr += 1;
 			}
-			if(Character.isWhitespace(text.charAt(i))) {
-				if(!isStringEmpty(str) && !isStringWhiteSpace(str)) {
-					splitStrings.add(str);
-					str = "";
-				}
+			String str="";
+			int end_ptr = start_ptr;
+			while(end_ptr < text.length() && !Character.isWhitespace(text.charAt(end_ptr))) {
+				str = str + text.charAt(end_ptr);
+				end_ptr += 1;
 			}
-			else str = str + text.charAt(i);
+			if(str.length() > 0) splitStrings.add(str);
+			start_ptr = end_ptr;
 		}
 		return splitStrings;
 	} 
