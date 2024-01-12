@@ -78,7 +78,7 @@ public class NoteController {
     }
 
     @CrossOrigin(origins = "*")
-    @GetMapping("/notes/searches")
+    @PostMapping("/notes/searches")
     public List<Note> searchNoteES(@Valid @RequestBody SearchNote searchNote) {
         String text = searchNote.getText();
         List<String> splitTexts = textUtils.splitString(text);
