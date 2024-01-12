@@ -83,9 +83,10 @@ public class NoteController {
         String text = searchNote.getText();
         List<String> splitTexts = textUtils.splitString(text);
         Integer limit = searchNote.getLimit();
+        Integer offset = searchNote.getOffset();
         List<Long> finalNoteIds =  es.getAllUniqueDocNoteIds(splitTexts);
         List<Note> ans = new ArrayList<Note>();
-        for(int i=0;i<finalNoteIds.size();i++){
+        for(int i=offset;i<finalNoteIds.size();i++){
             if(ans.size() == limit) break;
             Long noteId = finalNoteIds.get(i);
             try{
