@@ -1,6 +1,8 @@
 package com.example.easynotes.controller;
 
 import com.example.easynotes.exception.ResourceNotFoundException;
+import com.example.easynotes.kafka.consumer.NotesEventConsumer;
+import com.example.easynotes.kafka.producer.NotesEventProducer;
 import com.example.easynotes.model.Note;
 import com.example.easynotes.model.SearchNote;
 import com.example.easynotes.repository.NoteRepository;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import java.util.ArrayList;
@@ -30,9 +33,21 @@ public class NoteController {
     NoteRepository noteRepository;
 
     @Autowired
+    NotesEventProducer eventProducer;
+    @Autowired
+    NotesEventConsumer eventConsumer;
+
+    @Autowired
     esInterface es;
 
     private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
+
+    @PostConstruct
+    public void init() {
+        // Start consuming events in a separate thread
+        Thread consumerThread = new Thread(() -> eventConsumer.consumeEvents());
+        consumerThread.start();
+    }
 
     @CrossOrigin(origins = "*")
     @GetMapping("/notes")
@@ -54,6 +69,7 @@ public class NoteController {
     public Note createNote(@Valid @RequestBody Note note) {
         Note res = noteRepository.save(note);
         es.addToES(res);
+        eventProducer.sendEvent(res.getContent());
         return res;
     }
     
